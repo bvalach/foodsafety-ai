@@ -89,8 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'Food Security & Forecasting': ['food security', 'yield forecasting', 'climate impact', 'market analysis', 'food access', 'food availability'],
         'Process Optimization & Control': ['process control', 'optimization', 'food manufacturing', 'food processing', 'fermentation', 'drying'],
         'AI for Audits & Compliance': ['compliance', 'audit', 'regulatory', 'language model', 'NLP', 'document analysis'],
-        'Robotics & Automation': ['robot', 'automation', 'sorting', 'packaging', 'handling']
-    };
+        'Generative AI': ['generative artificial intelligence', 'generative adversarial networks', 'GAN', 'VAE', 'language model', 'NLP', 'document analysis'],
+        'Deep Learning': ['deep learning', 'neural networks', 'convolutional neural networks', 'recurrent neural networks', 'long short-term memory', 'transformer', 'attention mechanism', 'autoencoder', 'generative adversarial networks', 'VAE', 'GAN', 'language model', 'NLP', 'document analysis'],
+        'Machine learning': ['machine learning', 'supervised learning', 'unsupervised learning', 'reinforcement learning', 'decision trees', 'random forests', 'support vector machines', 'neural networks', 'convolutional neural networks', 'recurrent neural networks', 'long short-term memory', 'transformer', 'attention mechanism', 'autoencoder', 'generative adversarial networks', 'VAE', 'GAN', 'language model', 'NLP', 'document analysis'],
+        'Robotics & Automation': ['robot', 'automation', 'sorting', 'packaging', 'handling'],
+        };
 
     function categorizePaper(paper) {
         const text = `${paper.title} ${paper.abstract}`;
