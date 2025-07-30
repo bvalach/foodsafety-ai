@@ -28,7 +28,6 @@ Supervised by:
 -   **Dynamic Filtering:** Displays only recent publications (from January 2025 onwards) to maintain the relevance of the review.
 -   **Interactive Interface:** Users can click on any paper to view its abstract, authors, and other metadata in a modal window.
 -   **DOI Integration:** Provides direct links to the papers via their Digital Object Identifier (DOI) where available.
--   **Literature Map:** Includes an interactive literature map generated with Litmaps to visualise connections between publications.
 
 ### Technical Overview
 
