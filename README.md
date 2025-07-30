@@ -1,18 +1,17 @@
-# Socioeconomic perspectives and effects of Generative AI in the agrifood industry
+# AI in the agrifood industry: Advances towards food safety, control and monitoring
 
-## A Living Literature Review
 
 ### Introduction
 
-This repository contains the source code for a dynamic web application that serves as a research and technological surveillane on food safety and security and AI-based technologies. 
+This repository contains the source code for a dynamic web application that serves as a research and technological surveillance on food safety and security assisted by AI, including ML, DL, GenAI, &c.. 
 
 The project aims to provide an up-to-date, interactive repository of academic papers.
 
-The application automatically fetches recent publications from leading academic databases, filters them for relevance, and presents them in a user-friendly interface.
+The application automatically fetches recent publications from CrossRef, arXiv (preprints, previously their peer-reviewed versions), and Semantic Scholar.
 
 ### Doctoral Research Context
 
-This work is part of the PhD thesis and managerial responsibilities of the authors:
+This work is part of the PhD thesis and the managerial responsibilities of the authors:
 
 -   **PhD Candidate; COO:** Beatriz Vallina, PhD.
 -   **Chief Executive Officer:** Eduardo Álvarez.
