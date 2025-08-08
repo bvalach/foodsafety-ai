@@ -1,96 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.semanticscholar.org http://export.arxiv.org https://api.crossref.org; img-src 'self' data:; frame-src 'self';">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Security headers kept; CSP tightened only to the essentials already used -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.semanticscholar.org http://export.arxiv.org https://api.crossref.org; img-src 'self' data:; frame-src 'self';" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Food Safety and AI Observatory</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <header>
         <h1>FoodSafety+AI</h1>
         <h2>Food Safety and Artificial Intelligence Observatory</h2>
-        <p class="loading-notice">Please note: Data sources may take a moment to load (in particular, Crossref). If you only see results from arXiv or arXiv and Semantic Scholar, please refresh the page (F5) to load all sources.</p>
-        <div class="acknowledgement">
-            <p><strong>Authors:</strong> Beatriz Vallina, PhD.; Eduardo Álvarez (Embutidos Maybe, S.A.)</p> 
-        </div>
 
+        <p class="loading-notice" id="loading-notice">
+            Data sources can take a moment to respond (especially Crossref). If you only see arXiv or Semantic Scholar initially, the rest will load shortly.
+        </p>
+
+        <div class="acknowledgement">
+            <p><strong>Authors:</strong> Beatriz Vallina, PhD.; Eduardo Álvarez (Embutidos Maybe, S.A.)</p>
+        </div>
     </header>
-    <div class="timeline-container">
+
+    <section class="timeline-container" aria-label="Filter by date">
         <h3>Filter by Publication Date</h3>
         <div class="timeline-controls">
             <div class="timeline-labels">
-                <span id="min-date">Jan 2025</span>
-                <span id="max-date">Dec 2030</span>
+                <span id="min-date">—</span>
+                <span id="max-date">—</span>
             </div>
-            <div class="timeline-slider">
-                <input type="range" id="date-slider-min" min="0" max="23" value="0" step="1">
-                <input type="range" id="date-slider-max" min="0" max="23" value="23" step="1">
+            <div class="timeline-slider" id="timeline-slider">
+                <input type="range" id="date-slider-min" min="0" max="23" value="0" step="1" aria-label="Minimum month" />
+                <input type="range" id="date-slider-max" min="0" max="23" value="23" step="1" aria-label="Maximum month" />
             </div>
             <div class="timeline-selected">
-                <span>Selected range: </span>
-                <span id="selected-range">Jan 2025 - Dec 2026</span>
-                <button id="reset-timeline">Reset</button>
+                <span>Selected range:</span>
+                <span id="selected-range">—</span>
+                <button id="reset-timeline" type="button">Reset</button>
             </div>
         </div>
-    </div>
-    
-    <div class="category-filters-container">
-        <h3>Filter by Category</h3>
-        <div class="category-filters" id="category-filters">
-            <!-- Category filter buttons will be inserted here by JavaScript -->
-        </div>
-        <div class="filter-actions">
-            <button id="select-all-categories" class="filter-action-btn">Select All</button>
-            <button id="clear-all-categories" class="filter-action-btn">Clear All</button>
-        </div>
-    </div>
+    </section>
 
-    <div class="source-filters-container">
-        <h3>Filter by Source</h3>
-        <div class="source-filters" id="source-filters">
-            <!-- Source filter buttons will be inserted here by JavaScript -->
-        </div>
+    <section class="category-filters-container" aria-label="Filter by category">
+        <h3>Filter by Category</h3>
+        <div class="category-filters" id="category-filters"></div>
         <div class="filter-actions">
-            <button id="select-all-sources" class="filter-action-btn">Select All</button>
-            <button id="clear-all-sources" class="filter-action-btn">Clear All</button>
+            <button id="select-all-categories" class="filter-action-btn" type="button">Select All</button>
+            <button id="clear-all-categories" class="filter-action-btn" type="button">Clear All</button>
         </div>
-    </div>
-    
-    <div class="data-persistence-container">
+    </section>
+
+    <section class="source-filters-container" aria-label="Filter by source">
+        <h3>Filter by Source</h3>
+        <div class="source-filters" id="source-filters"></div>
+        <div class="filter-actions">
+            <button id="select-all-sources" class="filter-action-btn" type="button">Select All</button>
+            <button id="clear-all-sources" class="filter-action-btn" type="button">Clear All</button>
+        </div>
+    </section>
+
+    <section class="results-summary" id="results-summary" aria-live="polite" aria-atomic="true">
+        <div>
+            <strong id="result-count">0</strong> results
+        </div>
+        <div class="summary-actions">
+            <button id="clear-filters" class="filter-action-btn" type="button" title="Reset timeline and show all sources/categories">Clear filters</button>
+        </div>
+    </section>
+
+    <section class="data-persistence-container" aria-label="Living review management">
         <h3>Living Review Management</h3>
         <div class="persistence-controls">
-            <button id="export-json" class="export-btn">📄 Export JSON</button>
-            <button id="export-csv" class="export-btn">📊 Export CSV</button>
-            <button id="export-markdown" class="export-btn">📝 Export Markdown</button>
-            <button id="save-local" class="export-btn">💾 Save Locally</button>
-            <button id="load-local" class="export-btn">📂 Load Saved</button>
-            <span id="save-status" class="save-status"></span>
+            <button id="export-json" class="export-btn" type="button">Export JSON</button>
+            <button id="export-csv" class="export-btn" type="button">Export CSV</button>
+            <button id="export-markdown" class="export-btn" type="button">Export Markdown</button>
+            <button id="save-local" class="export-btn" type="button">Save Locally</button>
+            <button id="load-local" class="export-btn" type="button">Load Saved</button>
+            <span id="save-status" class="save-status" role="status" aria-live="polite"></span>
         </div>
-    </div>
-    <main id="paper-grid">
-        <!-- Paper cards will be inserted here by JavaScript -->
+    </section>
+
+    <main id="paper-grid" aria-busy="true">
+        <!-- Cards inserted here -->
     </main>
-    <div id="modal" class="modal">
+
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <button class="close-button" aria-label="Close">&times;</button>
             <h2 id="modal-title"></h2>
             <p id="modal-authors"></p>
             <p id="modal-date"></p>
             <p id="modal-doi"></p>
             <p id="modal-abstract"></p>
-            <a id="modal-link" href="#" target="_blank">Read Paper</a>
+            <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer">Read Paper</a>
         </div>
     </div>
-    <script src="script.js"></script>
+
     <footer>
-        <p>&copy; 2025 | Research by <a href="https://www.linkedin.com/in/beatrizvallina/" target="_blank">Beatriz Vallina</a></p>
-        <p>Embutidos Maybe, S.A. & Universitat Politècnica de València</p>
+        <p>&copy; 2025 | Research by <a href="https://www.linkedin.com/in/beatrizvallina/" target="_blank" rel="noopener noreferrer">Beatriz Vallina</a></p>
+        <p>Embutidos Maybe, S.A. &amp; Universitat Politècnica de València</p>
     </footer>
+
+    <script src="script.js"></script>
 </body>
-</html> 
+</html>
