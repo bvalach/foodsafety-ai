@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const exportJsonBtn = document.getElementById('export-json');
   const exportCsvBtn = document.getElementById('export-csv');
+  const exportRisBtn = document.getElementById('export-ris');
   const exportMarkdownBtn = document.getElementById('export-markdown');
   const saveLocalBtn = document.getElementById('save-local');
   const loadLocalBtn = document.getElementById('load-local');
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'Contaminant & Adulteration Detection': ['contaminant', 'adulteration', 'food fraud', 'detection', 'spectroscopy', 'hyperspectral imaging', 'mycotoxin', 'pathogen'],
     'Quality Inspection & Grading': ['quality inspection', 'food quality', 'grading', 'computer vision', 'image analysis', 'defect detection', 'freshness'],
     'Predictive Analytics & Risk Assessment': ['risk assessment', 'predictive modeling', 'foodborne illness', 'spoilage prediction', 'shelf life', 'HACCP'],
-    'Food Security & Forecasting': ['food security', 'yield forecasting', 'climate impact', 'market analysis', 'food access', 'food availability'],
+    'Food Safety Prediction': ['spoilage prediction', 'microbial growth', 'shelf life prediction', 'safety assessment', 'contamination prediction', 'hazard prediction', 'food spoilage'],
     'Process Optimization & Control': ['process control', 'optimization', 'food manufacturing', 'food processing', 'fermentation', 'drying'],
     'AI for Audits & Compliance': ['compliance', 'audit', 'regulatory', 'language model', 'NLP', 'document analysis'],
     'Generative AI': ['generative artificial intelligence', 'generative adversarial networks', 'GAN', 'VAE', 'language model', 'NLP', 'document analysis'],
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
           `"${p.categories? p.categories.join('; '): ''}"`,
           `"${p.doi||''}"`,
           `"${p.url||''}"`,
-          `"${(p.abstract||'').replace(/"/g,'""').substring(0,500)}"`,
+          `"${(p.abstract||'').replace(/"/g,'""')}"`,
         ];
         rows.push(row.join(','));
       });
@@ -224,13 +225,46 @@ document.addEventListener('DOMContentLoaded', () => {
       showSaveStatus('Markdown exported');
     }catch(e){ console.error(e); showSaveStatus('Error exporting Markdown', false); }
   }
+  function exportToRis(){
+    try{
+      const lines = [];
+      allPapers.forEach(p=>{
+        lines.push('TY  - JOUR');
+        if(p.title) lines.push(`TI  - ${p.title}`);
+        if(p.authors && p.authors.length){
+          p.authors.forEach(author=>{
+            lines.push(`AU  - ${author}`);
+          });
+        }
+        if(p.date){
+          const d = new Date(p.date);
+          const year = d.getFullYear();
+          const month = String(d.getMonth()+1).padStart(2,'0');
+          const day = String(d.getDate()).padStart(2,'0');
+          lines.push(`PY  - ${year}`);
+          lines.push(`DA  - ${year}/${month}/${day}`);
+        }
+        if(p.abstract) lines.push(`AB  - ${p.abstract}`);
+        if(p.doi) lines.push(`DO  - ${p.doi}`);
+        if(p.url && p.url !== '#') lines.push(`UR  - ${p.url}`);
+        lines.push('ER  - ');
+        lines.push('');
+      });
+      const blob = new Blob([lines.join('\\r\\n')], {type:'application/x-research-info-systems'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `foodSafetyAI-Observatory-${new Date().toISOString().split('T')[0]}.ris`;
+      a.click();
+      showSaveStatus('RIS exported');
+    }catch(e){ console.error(e); showSaveStatus('Error exporting RIS', false); }
+  }
 
   // API queries
   async function searchSemanticScholar(){
     const combinedQuery = [
-      '(food safety OR food security OR HACCP)',
+      '("food safety" OR "food quality" OR "food processing" OR "food industry" OR "food manufacturing" OR HACCP OR "food inspection" OR "food contamination" OR "foodborne" OR "food plant")',
       'AND',
-      '(machine learning OR "artificial intelligence" OR "deep learning" OR "computer vision" OR hyperspectral OR "generative adversarial networks" OR "reinforcement learning" OR "natural language processing")'
+      '("machine learning" OR "artificial intelligence" OR "deep learning" OR "computer vision" OR "predictive model" OR "automation" OR "process control" OR "quality control")'
     ].join(' ');
     const allFound = [];
     const fields = 'title,authors,year,abstract,url,publicationDate,externalIds';
@@ -264,13 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function searchCrossref(){
     const queries = [
-      'food safety "machine learning"',
-      'food security "artificial intelligence"',
-      '"deep learning" "food quality"',
-      '"computer vision" "food inspection"',
-      'food traceability',
-      'food adulteration',
-      'HACCP AI'
+      '"food safety" "machine learning"',
+      '"food processing" "artificial intelligence"',
+      '"food industry" "deep learning"',
+      '"food manufacturing" "computer vision"',
+      '"food quality control" AI',
+      '"food inspection" automation',
+      '"HACCP" "predictive model"',
+      '"food plant" "process control"',
+      '"food contamination" detection',
+      '"foodborne" "machine learning"'
     ];
     const mailto = "bvalach@doctor.upv.es";
     const maxRetries = 3;
@@ -322,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function searchArxiv(){
-    const query = `(all:"food safety" OR all:"food security") AND (all:"machine learning" OR all:"deep learning" OR all:"artificial intelligence" OR all:"computer vision")`;
+    const query = `(all:"food safety" OR all:"food quality" OR all:"food processing" OR all:"food inspection" OR all:"food manufacturing") AND (all:"machine learning" OR all:"deep learning" OR all:"artificial intelligence" OR all:"computer vision" OR all:"automation")`;
     const url = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(query)}&sortBy=submittedDate&sortOrder=descending&max_results=100`;
     try{
       const controller = new AbortController();
@@ -623,6 +660,9 @@ document.addEventListener('DOMContentLoaded', () => {
       merged = Array.from(new Map(merged.map(p=>[ (p.title||'').toLowerCase().trim(), p ])).values());
       const cutoff = new Date('2023-01-01');
       merged = merged.filter(p=>p.date && !isNaN(new Date(p.date)) && new Date(p.date) >= cutoff);
+      // Filter out agricultural papers (crop, yield, farm-related)
+      const agriTerms = /\b(crop|crops|yield|yields|agricultural|farming|farm|planting|irrigation|harvest|agronomy|cultivation|field trial|soil|fertilizer|pesticide)\b/i;
+      merged = merged.filter(p => !agriTerms.test(p.title + ' ' + (p.abstract || '')));
       merged.sort((a,b)=> new Date(b.date) - new Date(a.date));
       allPapers = merged;
       initializeTimeline(allPapers);
@@ -653,6 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   exportJsonBtn.addEventListener('click', exportToJson);
   exportCsvBtn.addEventListener('click', exportToCsv);
+  exportRisBtn.addEventListener('click', exportToRis);
   exportMarkdownBtn.addEventListener('click', exportToMarkdown);
   saveLocalBtn.addEventListener('click', ()=>{ saveToLocal(); showSaveStatus('State saved', true); });
   loadLocalBtn.addEventListener('click', loadFromLocal);
