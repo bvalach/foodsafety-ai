@@ -36,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultCount = document.getElementById('result-count');
   const clearFiltersBtn = document.getElementById('clear-filters');
 
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+
   // State
   let allPapers = [];
   let selectedCategories = new Set();
@@ -44,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let actualDateRange = { minDate: null, maxDate: null };
   let availableCategories = new Set();
   let availableSources = new Set(['SemanticScholar', 'Crossref', 'arXiv']);
+  let searchQuery = '';
+  let sortOrder = 'date-desc';
 
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -560,27 +565,43 @@ document.addEventListener('DOMContentLoaded', () => {
   function clearAllSources(){ selectedSources.clear(); updateSourceButtons(); scheduleApplyFilters(); }
 
   function applyFilters(){
+    let filtered = allPapers;
+    // Search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(p => {
+        const title = (p.title || '').toLowerCase();
+        const abstract = (p.abstract || '').toLowerCase();
+        const authors = Array.isArray(p.authors) ? p.authors.join(' ').toLowerCase() : '';
+        return title.includes(q) || abstract.includes(q) || authors.includes(q);
+      });
+    }
     // Filter by category
-    const byCat = allPapers.filter(p=>{
-      if (selectedCategories.size===0) return true;
-      return p.categories?.some(cat=>selectedCategories.has(cat));
-    });
+    if (selectedCategories.size > 0) {
+      filtered = filtered.filter(p => p.categories?.some(cat => selectedCategories.has(cat)));
+    }
     // Filter by source
-    const bySrc = byCat.filter(p=>{
-      if (selectedSources.size===0) return true;
-      return selectedSources.has(p.source);
-    });
+    if (selectedSources.size > 0) {
+      filtered = filtered.filter(p => selectedSources.has(p.source));
+    }
     // Filter by date
     const minVal = parseInt(dateSliderMin.value);
     const maxVal = parseInt(dateSliderMax.value);
     const baseYear = actualDateRange.minDate ? actualDateRange.minDate.getFullYear() : 2025;
     const minDate = monthIndexToDate(minVal, baseYear);
     const maxDate = monthIndexToDate(maxVal + 1, baseYear);
-    const filtered = bySrc.filter(p=>{
-      if(!p.date) return false;
+    filtered = filtered.filter(p => {
+      if (!p.date) return false;
       const d = new Date(p.date);
       return d >= minDate && d < maxDate;
     });
+    // Sort
+    switch (sortOrder) {
+      case 'date-desc': filtered.sort((a, b) => new Date(b.date) - new Date(a.date)); break;
+      case 'date-asc': filtered.sort((a, b) => new Date(a.date) - new Date(b.date)); break;
+      case 'title-asc': filtered.sort((a, b) => (a.title || '').localeCompare(b.title || '')); break;
+      case 'title-desc': filtered.sort((a, b) => (b.title || '').localeCompare(a.title || '')); break;
+    }
     displayPapers(filtered);
   }
   const scheduleApplyFilters = debounce(applyFilters, 100);
@@ -691,6 +712,9 @@ document.addEventListener('DOMContentLoaded', () => {
   selectAllSourcesBtn.addEventListener('click', selectAllSources);
   clearAllSourcesBtn.addEventListener('click', clearAllSources);
 
+  searchInput.addEventListener('input', debounce(() => { searchQuery = searchInput.value.trim(); scheduleApplyFilters(); }, 200));
+  sortSelect.addEventListener('change', () => { sortOrder = sortSelect.value; applyFilters(); });
+
   exportJsonBtn.addEventListener('click', exportToJson);
   exportCsvBtn.addEventListener('click', exportToCsv);
   exportRisBtn.addEventListener('click', exportToRis);
@@ -702,6 +726,10 @@ document.addEventListener('DOMContentLoaded', () => {
     selectAllCategories();
     selectAllSources();
     resetTimeline();
+    searchInput.value = '';
+    searchQuery = '';
+    sortSelect.value = 'date-desc';
+    sortOrder = 'date-desc';
   });
 
   function initialize(){
