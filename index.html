@@ -3,116 +3,185 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Security headers kept; CSP tightened only to the essentials already used -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.semanticscholar.org http://export.arxiv.org https://api.crossref.org; img-src 'self' data:; frame-src 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.semanticscholar.org https://export.arxiv.org https://api.crossref.org; img-src 'self' data:; frame-src 'self';" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Food Safety and AI Observatory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&display=swap" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>FoodSafety+AI</h1>
-        <h2>Food Safety and Artificial Intelligence Observatory</h2>
-
-        <p class="loading-notice" id="loading-notice">
-            Data sources can take a moment to respond (especially Crossref). If you only see arXiv or Semantic Scholar initially, the rest will load shortly.
-        </p>
-
-        <div class="acknowledgement">
-            <p><strong>Authors:</strong> Beatriz Vallina, PhD.; Eduardo Álvarez (Embutidos Maybe, S.A.)</p>
+    <header class="site-header">
+        <div class="header-inner">
+            <p class="header-kicker">Living Literature Review</p>
+            <h1>FoodSafety<span class="plus">+</span>AI</h1>
+            <p class="header-subtitle">Food Safety and Artificial Intelligence Observatory</p>
+            <div class="header-meta">
+                <span>Beatriz Vallina, PhD.</span>
+                <span class="dot" aria-hidden="true">·</span>
+                <span>Eduardo Álvarez</span>
+                <span class="dot" aria-hidden="true">·</span>
+                <span>Embutidos Maybe, S.A.</span>
+            </div>
         </div>
     </header>
 
-    <section class="search-sort-container" aria-label="Search and sort">
-        <input type="search" id="search-input" placeholder="Search by title, author or keyword..." aria-label="Search papers" />
-        <select id="sort-select" aria-label="Sort papers">
-            <option value="date-desc">Newest first</option>
-            <option value="date-asc">Oldest first</option>
-            <option value="title-asc">Title A–Z</option>
-            <option value="title-desc">Title Z–A</option>
-        </select>
-    </section>
-
-    <section class="timeline-container" aria-label="Filter by date">
-        <h3>Filter by Publication Date</h3>
-        <div class="timeline-controls">
-            <div class="timeline-labels">
-                <span id="min-date">—</span>
-                <span id="max-date">—</span>
+    <div class="search-band">
+        <div class="search-band-inner">
+            <div class="search-box">
+                <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                <input type="search" id="search-input" placeholder="Search papers, authors, keywords…" aria-label="Search papers" autocomplete="off" />
+                <kbd class="search-kbd" aria-hidden="true">/</kbd>
             </div>
-            <div class="timeline-slider" id="timeline-slider">
-                <input type="range" id="date-slider-min" min="0" max="23" value="0" step="1" aria-label="Minimum month" />
-                <input type="range" id="date-slider-max" min="0" max="23" value="23" step="1" aria-label="Maximum month" />
-            </div>
-            <div class="timeline-selected">
-                <span>Selected range:</span>
-                <span id="selected-range">—</span>
-                <button id="reset-timeline" type="button">Reset</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="category-filters-container" aria-label="Filter by category">
-        <h3>Filter by Category</h3>
-        <div class="category-filters" id="category-filters"></div>
-        <div class="filter-actions">
-            <button id="select-all-categories" class="filter-action-btn" type="button">Select All</button>
-            <button id="clear-all-categories" class="filter-action-btn" type="button">Clear All</button>
-        </div>
-    </section>
-
-    <section class="source-filters-container" aria-label="Filter by source">
-        <h3>Filter by Source</h3>
-        <div class="source-filters" id="source-filters"></div>
-        <div class="filter-actions">
-            <button id="select-all-sources" class="filter-action-btn" type="button">Select All</button>
-            <button id="clear-all-sources" class="filter-action-btn" type="button">Clear All</button>
-        </div>
-    </section>
-
-    <section class="results-summary" id="results-summary" aria-live="polite" aria-atomic="true">
-        <div>
-            <strong id="result-count">0</strong> results
-        </div>
-        <div class="summary-actions">
-            <button id="clear-filters" class="filter-action-btn" type="button" title="Reset timeline and show all sources/categories">Clear filters</button>
-        </div>
-    </section>
-
-    <section class="data-persistence-container" aria-label="Living review management">
-        <h3>Living Review Management</h3>
-        <div class="persistence-controls">
-            <button id="export-json" class="export-btn" type="button">Export JSON</button>
-            <button id="export-csv" class="export-btn" type="button">Export CSV</button>
-            <button id="export-ris" class="export-btn" type="button">Export RIS</button>
-            <button id="export-markdown" class="export-btn" type="button">Export Markdown</button>
-            <button id="save-local" class="export-btn" type="button">Save Locally</button>
-            <button id="load-local" class="export-btn" type="button">Load Saved</button>
-            <span id="save-status" class="save-status" role="status" aria-live="polite"></span>
-        </div>
-    </section>
-
-    <main id="paper-grid" aria-busy="true">
-        <!-- Cards inserted here -->
-    </main>
-
-    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-content">
-            <button class="close-button" aria-label="Close">&times;</button>
-            <h2 id="modal-title"></h2>
-            <p id="modal-authors"></p>
-            <p id="modal-date"></p>
-            <p id="modal-doi"></p>
-            <p id="modal-abstract"></p>
-            <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer">Read Paper</a>
+            <p class="search-hint">Try operators: <code>author:smith</code> <code>title:HACCP</code> <code>year:2024</code> <code>source:arxiv</code></p>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025–2026 | Research by <a href="https://www.linkedin.com/in/beatrizvallina/" target="_blank" rel="noopener noreferrer">Beatriz Vallina</a></p>
+    <div class="active-filters" id="active-filters" aria-label="Active filters" aria-live="polite"></div>
+
+    <div class="page-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="panel">
+                <button class="panel-header" type="button" aria-expanded="true" aria-controls="panel-date">
+                    <span>Publication date</span>
+                    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <div class="panel-body" id="panel-date">
+                    <div class="date-range">
+                        <label class="date-field">
+                            <span>From</span>
+                            <select id="date-from" aria-label="From year"></select>
+                        </label>
+                        <label class="date-field">
+                            <span>To</span>
+                            <select id="date-to" aria-label="To year"></select>
+                        </label>
+                    </div>
+                    <div class="timeline-labels">
+                        <span id="selected-range">—</span>
+                    </div>
+                    <button id="reset-timeline" class="text-button" type="button">Reset date range</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <button class="panel-header" type="button" aria-expanded="true" aria-controls="panel-categories">
+                    <span>Categories</span>
+                    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <div class="panel-body" id="panel-categories">
+                    <div class="filter-mode" role="group" aria-label="Category filter mode">
+                        <button type="button" class="mode-btn active" data-mode="or" title="Papers in ANY selected category">Any</button>
+                        <button type="button" class="mode-btn" data-mode="and" title="Papers in ALL selected categories">All</button>
+                    </div>
+                    <div class="filter-list" id="category-filters"></div>
+                    <div class="filter-actions">
+                        <button id="select-all-categories" class="text-button" type="button">Select all</button>
+                        <button id="clear-all-categories" class="text-button" type="button">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <button class="panel-header" type="button" aria-expanded="true" aria-controls="panel-sources">
+                    <span>Sources</span>
+                    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <div class="panel-body" id="panel-sources">
+                    <div class="filter-list" id="source-filters"></div>
+                    <div class="filter-actions">
+                        <button id="select-all-sources" class="text-button" type="button">Select all</button>
+                        <button id="clear-all-sources" class="text-button" type="button">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel api-status-panel">
+                <button class="panel-header" type="button" aria-expanded="true" aria-controls="panel-status">
+                    <span>Data sources</span>
+                    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <div class="panel-body" id="panel-status">
+                    <ul class="api-status" id="api-status" aria-live="polite">
+                        <li data-source="Crossref"><span class="status-dot"></span> Crossref</li>
+                        <li data-source="SemanticScholar"><span class="status-dot"></span> Semantic Scholar</li>
+                        <li data-source="arXiv"><span class="status-dot"></span> arXiv</li>
+                    </ul>
+                    <button id="refresh-data" class="text-button" type="button">Refresh now</button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="results" id="results" aria-busy="true">
+            <div class="results-toolbar">
+                <div class="results-info">
+                    <strong id="result-count">0</strong>
+                    <span id="result-label">papers</span>
+                </div>
+                <div class="results-controls">
+                    <label class="sort-label" for="sort-select">Sort by</label>
+                    <select id="sort-select" aria-label="Sort papers">
+                        <option value="date-desc">Newest first</option>
+                        <option value="date-asc">Oldest first</option>
+                        <option value="title-asc">Title A–Z</option>
+                        <option value="title-desc">Title Z–A</option>
+                    </select>
+                    <div class="export-group">
+                        <button id="export-csv" class="icon-button" title="Export CSV" type="button" aria-label="Export CSV">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+                            <span>CSV</span>
+                        </button>
+                        <button id="export-markdown" class="icon-button" title="Export Markdown" type="button" aria-label="Export Markdown">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            <span>Markdown</span>
+                        </button>
+                        <button id="export-ris" class="icon-button" title="Export RIS" type="button" aria-label="Export RIS">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg>
+                            <span>RIS</span>
+                        </button>
+                        <button id="export-json" class="icon-button" title="Export JSON" type="button" aria-label="Export JSON">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                            <span>JSON</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="paper-grid" class="paper-grid"></div>
+
+            <div class="persistence-bar">
+                <button id="save-local" class="text-button" type="button">Save snapshot</button>
+                <button id="load-local" class="text-button" type="button">Load snapshot</button>
+                <span id="save-status" class="save-status" role="status" aria-live="polite"></span>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <button class="close-button" aria-label="Close">&times;</button>
+            <p class="modal-source" id="modal-source"></p>
+            <h2 id="modal-title"></h2>
+            <p id="modal-authors"></p>
+            <p id="modal-date"></p>
+            <p id="modal-abstract"></p>
+            <p id="modal-doi"></p>
+            <div class="modal-actions">
+                <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="primary-button">Read paper</a>
+                <button id="copy-citation" class="secondary-button" type="button">Copy citation</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="site-footer">
+        <p>&copy; 2025–2026 · Research by <a href="https://www.linkedin.com/in/beatrizvallina/" target="_blank" rel="noopener noreferrer">Beatriz Vallina</a></p>
         <p>Embutidos Maybe, S.A. &amp; Universitat Politècnica de València</p>
     </footer>
 
